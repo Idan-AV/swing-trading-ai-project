@@ -62,7 +62,7 @@ def run_rnn_analysis(ticker, df):
         dummy_array[0, features.index('Close')] = pred_scaled
         pred_price = scaler.inverse_transform(dummy_array)[0, features.index('Close')]
     except:
-        return 0.5  # Default in case of error
+        return 0.5, 0.0  # Default in case of error
 
     current_price = df['Close'].iloc[-1]
     expected_change = (pred_price - current_price) / current_price
@@ -72,7 +72,9 @@ def run_rnn_analysis(ticker, df):
     rnn_prob = 1 / (1 + np.exp(-k * expected_change))
 
     print(f" [RNN Info] Current Price: ${current_price:.2f} | Predicted Price: ${pred_price:.2f}")
-    return rnn_prob
+
+    # החזרה של שני הערכים: גם הציון וגם המחיר
+    return rnn_prob, pred_price
 
 
 def run_trend_analysis(ticker, df):
@@ -172,7 +174,8 @@ def evaluate_stock(ticker):
         print(f"שגיאה במשיכת נתונים: {e}")
         return
 
-    rnn_prob = run_rnn_analysis(ticker, df)
+    # קליטה של שני הערכים מהפונקציה המעודכנת
+    rnn_prob, pred_price = run_rnn_analysis(ticker, df)
     trend_prob = run_trend_analysis(ticker, df)
     nlp_score = run_nlp_analysis(ticker)
 
